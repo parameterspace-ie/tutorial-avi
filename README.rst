@@ -1,7 +1,3 @@
-This AVI is developed as part of the tutorial in the GAVIP user manual. Each branch corresponds to a different step in the tutorial.
-
-The complete tutorial is included below
-
 .. _reference-tutorial:
 
 =========================
@@ -60,19 +56,20 @@ Lets create a directory to store the AVI code, and the AVI data::
     mkdir input output logs db # Create the data subdirectories
 
 Now we have created a folder for our AVI code ``~/my_first_avi/avi`` and a data directory which will store our database, logs, analysis inputs and outputs ``~/my_first_avi/data``.
-    
+
+-----------------------
 Create the AVI skeleton
-^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------
 
 We need to create some AVI code before the AVI will start successfully.
 
 __init__.py
-***********
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Before writing any code, create this file so the AVI framework recognizes our AVI folder as an application.
 
 urls.py
-*******
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Lets begin by creating our ``urls.py``. This file maps urls to different functions. 
 We will start off very simply, with one view.
@@ -88,7 +85,7 @@ Create ``~/my_first_avi/avi/urls.py`` with the following content::
     )
 
 views.py
-********
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 We saw in ``urls.py`` that we imported ``views``, and mapped an empty URL to ``views.index``. 
 So lets create this file now, with an index function.
@@ -106,7 +103,7 @@ Create ``~/my_first_avi/avi/views.py`` with the following content::
 This index function is creating a context dictionary, and using that to render a HTML response using a template at ``avi/index.html``. We haven't created that template yet, that's the next step.
 
 templates/avi/index.html
-************************
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Our view function ``index()`` is rendering a response using a template. We will now create that template, and use the context to alter the response.
 
@@ -115,5 +112,31 @@ Create ``~/my_first_avi/avi/templates/avi/index.html``. Note that the render fun
     Hello {{name}}!
 
 
+The tutorial up to this point is available at: https://github.com/parameterspace-ie/tutorial-avi/tree/skeleton
 
+-------------------
+Start up the AVI
+-------------------
 
+Now that we have a skeleton AVI, lets start our AVI and look at the results.
+
+Run the following command to start the AVI. The individual parts of the command are explained below separately::
+
+    docker run -dit \
+        -e SETTINGS=settings.standalone \
+        -v ~/my_first_avi/data:/data \
+        -v ~/my_first_avi/avi:/opt/gavip_avi/avi \
+        -p 10000:10000 \
+        repositories.gavip.science/ps_avi_python:develop \
+        supervisord
+
+:docker run -dit: Docker creates and starts a container in detached mode, with a pseudo-tty, keeping STDIN open if not attached. See docker docs for more: https://docs.docker.com/engine/reference/run/ 
+:-e SETTINGS=settings.standalone: We set the SETTINGS environment variable to settings.standalone to start the AVI in standalone mode.
+:-v .../data: Mount the data folder into the AVI
+:-v .../avi: Mount the avi code folder into the AVI
+:-p ...10000: Map port 10000 within the container to port 10000 on this computer (the web interface starts on port 10000 in the container)
+:repositories.....develop: Use the ``ps_avi_python:develop`` template for the container
+:supervisord: Run supervisord when the container starts (this starts the AVI pipeline workers, and AVI interface web servers)
+
+Now that the AVI has started up, navigate to http://localhost:10000 to view your AVI.
+You should get redirected to http://localhost:10000/avi/ and see "Hello John Smith!"
