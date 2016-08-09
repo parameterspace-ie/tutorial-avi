@@ -66,6 +66,11 @@ Create the AVI skeleton
 
 We need to create some AVI code before the AVI will start successfully.
 
+__init__.py
+***********
+
+Before writing any code, create this file so the AVI framework recognizes our AVI folder as an application.
+
 urls.py
 *******
 
@@ -78,6 +83,7 @@ Create ``~/my_first_avi/avi/urls.py`` with the following content::
     from django.conf.urls import patterns, url
 
     urlpatterns = patterns(
+        '',
         url(r'^$', views.index, name='index'),
     )
 
@@ -89,5 +95,25 @@ So lets create this file now, with an index function.
 
 Create ``~/my_first_avi/avi/views.py`` with the following content::
     
-    
+    from django.shortcuts import render
+
+    def index(request):
+        context = {
+            "name": "John Smith"
+        }
+        return render(request, 'avi/index.html', context)
+
+This index function is creating a context dictionary, and using that to render a HTML response using a template at ``avi/index.html``. We haven't created that template yet, that's the next step.
+
+templates/avi/index.html
+************************
+
+Our view function ``index()`` is rendering a response using a template. We will now create that template, and use the context to alter the response.
+
+Create ``~/my_first_avi/avi/templates/avi/index.html``. Note that the render function takes 'avi/index.html' as a parameter. We could use 'foo/index.html' and use the same parameter in the render function. Put the following in the template::
+
+    Hello {{name}}!
+
+
+
 
