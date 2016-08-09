@@ -149,7 +149,7 @@ Phase 2: Lets add analysis
 In this phase of the tutorial, we are going to add a pipeline for the AVI to run. 
 We are then going to create a model so we can store and add parameters to the pipeline.
 
-The code that you should expect to have at the end of this tutorial is available at https://github.com/parameterspace-ie/tutorial-avi/tree/skeleton
+The code that you should expect to have at the end of this tutorial is available at https://github.com/parameterspace-ie/tutorial-avi/tree/analysis
 
 
 tasks.py
@@ -213,8 +213,6 @@ Add the following to ``models.py`` to create the `TutorialModel`::
         fib_num = models.IntegerField()
         pipeline_task = "CalcFib"
 
-        def get_absolute_url(self):
-            return "%i/" % self.pk
 
 The model has two parameters, ``fib_num`` and ``pipeline_task``.
 ``fib_num`` must match the parameter required by the pipeline we created in ``tasks.py``. 
@@ -363,4 +361,70 @@ At this point we have a functioning AVI. But the interface is a bit dull and a b
 
 So in this step of the tutorial, we are going to improve our interface (without any additional HTML) by adding views using the Django Rest Framework.
 
+The `Django Rest Framework`_ tutorial is recommended as a resource for AVI development
+
+Intro
+^^^^^
+
+The Django Rest Framework provides a REST API around your models, and will generate a web interface for users to interact with for you.
+For this to work, we are missing one thing: a serializer! This is a class which defines the interface between the API and the model (this includes how fields are represented, what fields are read-only, etc)
+
+serializers.py
+^^^^^^^^^^^^^^
+
+The serializer is used to define how information should be translated between the database model and the web interface. 
+There is plenty of information on the Django Rest Framework documentation on serializers.
+
+Create ``serializers.py`` with the following content::
+
+    from rest_framework import serializers
+    from avi.models import TutorialModel
+
+    class TutorialModelSerializer(serializers.ModelSerializer):
+
+        class Meta:
+            model = TutorialModel
+            fields = '__all__'
+            depth = 2
+
+We are letting the serializer populate most of its fields automatically using the Meta class.
+
+views.py
+^^^^^^^^
+
+Now that we have a serializer, lets simplify our ``views.py``.
+Replacing everything in ``views.py`` with the following::
+
+    from avi.models import TutorialModel
+    from avi.serializers import TutorialModelSerializer
+    from rest_framework import generics
+    from rest_framework.renderers import JSONRenderer, AdminRenderer
+
+    class TutorialModelList(generics.ListCreateAPIView):
+        queryset = TutorialModel.objects.all()
+        serializer_class = TutorialModelSerializer
+        renderer_classes = (JSONRenderer, AdminRenderer)
+
+You can see that we are using our Model and our Serializer along with some generic views provided by the Django Rest Framework.
+It is worth noticing the ``renderer_classes`` line where we specify JSONRenderer first, then the AdminRenderer. 
+If we make a request to the url which gets mapped to this view from the command line, we will get a JSON response rather than HTML. Alternatively, in a browser we get a nice web interface.
+
+urls.py
+^^^^^^^
+
+Change your ``urls.py`` to have the following content. We are going to use that single class in ``views.py`` now::
+
+    from avi import views
+    from django.conf.urls import patterns, url
+
+    urlpatterns = patterns(
+        '',
+        url(r'^$', views.TutorialModelList.as_view(), name='tutorialmodel-list'),
+    )
+
+And that's all the work done, we could now delete the ``templates`` directory and its HTML files if we wished.
+We will keep them for now as the final phase is reusing these Django Rest Framework views in a fancier custom HTML page.
+
 .. _Luigi documentation: http://luigi.readthedocs.io/en/latest/example_top_artists.html
+.. _Django Rest Framework: http://www.django-rest-framework.org/tutorial/1-serialization/
+
