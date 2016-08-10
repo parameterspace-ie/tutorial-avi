@@ -353,15 +353,17 @@ If that is the case, if you navigate to ``~/my_first_avi/data/output`` we should
 
 Congratulations, you now have a functioning AVI that users can interact with, and your first analysis pipeline.
 
--------------------------------
-Using the Django Rest Framework
--------------------------------
+------------------------------------------
+Phase 3: Using the Django Rest Framework
+------------------------------------------
 
 At this point we have a functioning AVI. But the interface is a bit dull and a bit limited (what if we wanted a second parameter in our pipeline?)
 
 So in this step of the tutorial, we are going to improve our interface (without any additional HTML) by adding views using the Django Rest Framework.
 
 The `Django Rest Framework`_ tutorial is recommended as a resource for AVI development
+
+As in the other phases, the expected code is available online at https://github.com/parameterspace-ie/tutorial-avi/tree/djangorestframework
 
 Intro
 ^^^^^
